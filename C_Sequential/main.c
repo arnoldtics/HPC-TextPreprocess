@@ -2,9 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
+#include "Timming.h"
 
 int main(int argn, char **argv){
     if (argn > 1){
+    	double utime0, stime0, wtime0, utime1, stime1, wtime1;
+		uswtime(&utime0, &stime0, &wtime0);
+
         // Reading input file
         FILE *input = fopen(argv[1], "r");
         if (!input){
@@ -65,6 +69,15 @@ int main(int argn, char **argv){
         free(lines); // returning memory of all the array
         fclose(input);
         fclose(output);
+
+        uswtime(&utime1, &stime1, &wtime1);
+		printf("\nBenchmarks (sec):\n");
+	    printf("real %.3f\n", wtime1 - wtime0);
+	    printf("user %.3f\n", utime1 - utime0);
+	    printf("sys %.3f\n", stime1 - stime0);
+	    printf("\n");
+	    printf("CPU/Wall %.3f %% \n", 100.0 * (utime1 - utime0 + stime1 - stime0) / (wtime1 - wtime0));
+    	printf("\n");
     } else {
         printf("You must write the file name as an argument\n");
     }

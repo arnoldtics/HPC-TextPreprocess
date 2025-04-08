@@ -3,9 +3,12 @@
 #include <string.h>
 #include <mpi.h>
 #include "common.h"
+#include "Timming.h"
 
 int main(int argn, char **args) {
     int my_proc, num_procs;
+	double utime0, stime0, wtime0, utime1, stime1, wtime1;
+
     MPI_Status status;
     
     MPI_Init(&argn, &args);
@@ -19,6 +22,8 @@ int main(int argn, char **args) {
             return 1;
         }
         
+		uswtime(&utime0, &stime0, &wtime0);
+
         // Input file (Count the number of lines)
         FILE *input = fopen(args[1], "r");
         if (!input) {
@@ -167,6 +172,18 @@ int main(int argn, char **args) {
             free(cleaned_line);
         }
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+	if (my_proc == 0){
+		uswtime(&utime1, &stime1, &wtime1);
+		printf("\nBenchmarks (sec):\n");
+	    	printf("real %.3f\n", wtime1 - wtime0);
+	    	printf("user %.3f\n", utime1 - utime0);
+	    	printf("sys %.3f\n", stime1 - stime0);
+	    	printf("\n");
+	    	printf("CPU/Wall %.3f %% \n", 100.0 * (utime1 - utime0 + stime1 - stime0) / (wtime1 - wtime0));
+	    	printf("\n");
+	}
     
     MPI_Finalize();
     return 0;
