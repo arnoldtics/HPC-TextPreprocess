@@ -27,7 +27,7 @@ typedef struct {
     int index;
     char* original_line;  // Original line (master)
     char* cleaned_line;   // Cleaned line (worker)
-    int processed;        // Flag to indicate if it was processed
+    // int processed;        // Flag to indicate if it was processed
 } MPILine;
 
 // Funtion to sort our Line structure

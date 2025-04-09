@@ -71,7 +71,7 @@ int main(int argn, char **args) {
                 break;
             }
             lines[current_line].cleaned_line = NULL; // clean lines (workers)
-            lines[current_line].processed = 0; // process flag, free
+            // lines[current_line].processed = 0; // process flag, free
             current_line++;
         }
         fclose(input);
@@ -95,7 +95,7 @@ int main(int argn, char **args) {
         for (int worker = 1; worker < num_procs && next_line < line_count; worker++) {
             MPI_Send(&lines[next_line].index, 1, MPI_UNSIGNED_LONG_LONG, worker, 0, MPI_COMM_WORLD);
             MPI_Send(lines[next_line].original_line, strlen(lines[next_line].original_line)+1, MPI_CHAR, worker, 0, MPI_COMM_WORLD);
-            lines[next_line].processed = -1;
+            //lines[next_line].processed = -1;
             next_line++;
         }
         
@@ -115,14 +115,14 @@ int main(int argn, char **args) {
             }
 
             // Flag control (processed)
-            lines[received_index].processed = 1;
+            //lines[received_index].processed = 1;
             completed_lines++;
             
             // Sending new line to the worker
             if (next_line < line_count) {
                 MPI_Send(&lines[next_line].index, 1, MPI_UNSIGNED_LONG_LONG, status.MPI_SOURCE, 0, MPI_COMM_WORLD);
                 MPI_Send(lines[next_line].original_line, strlen(lines[next_line].original_line)+1, MPI_CHAR, status.MPI_SOURCE, 0, MPI_COMM_WORLD);
-                lines[next_line].processed = -1; // flag in progress
+                //lines[next_line].processed = -1; // flag in progress
                 next_line++;
             } else {
                 // Sending notification of termination
@@ -173,7 +173,7 @@ int main(int argn, char **args) {
         }
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    // MPI_Barrier(MPI_COMM_WORLD);
 	if (my_proc == 0){
 		uswtime(&utime1, &stime1, &wtime1);
 		printf("\nBenchmarks (sec):\n");
