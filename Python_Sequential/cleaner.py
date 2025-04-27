@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+# arguments: inputFileName outputFileName
 # it works just for English files
 
+import sys 
 from time import time
 
 # the list of stop words was provided by Deepseek
@@ -50,8 +52,10 @@ def remove_stop_words(L:list):
 
 
 if __name__ == "__main__":
-    inputFile = input("Write the name of your input file:\n").strip()
-    outputFile = input("Write the name of your output file:\n").strip()
+    # inputFile = input("Write the name of your input file:\n").strip()
+    # outputFile = input("Write the name of your output file:\n").strip()
+    inputFile = sys.argv[1]
+    outputFile = sys.argv[2]
 
     start_time = time()
 
