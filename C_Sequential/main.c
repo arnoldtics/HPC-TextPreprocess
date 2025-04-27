@@ -5,7 +5,7 @@
 #include "Timming.h"
 
 int main(int argn, char **argv){
-    if (argn > 2){
+    if (argn > 3){
     	double utime0, stime0, wtime0, utime1, stime1, wtime1;
 		uswtime(&utime0, &stime0, &wtime0);
 
@@ -24,12 +24,21 @@ int main(int argn, char **argv){
             return 1;
         }
 
-        // printf("'el' es stop word? %d\n", is_stop_word("el"));  // Debe imprimir 1 (true)
-        // printf("'zorro' es stop word? %d\n", is_stop_word("zorro"));  // Debe imprimir 0 (false)
-
         Line *lines = NULL; // Dynamic array for all lines
         char buffer[MAX_SIZE]; // Buffer for reading each line
         int idx = 0; // Index: the numbre of line
+
+        // Detecting language
+        int language;
+        if(strcmp(argv[3], "spanish") == 0){language = 1;}
+        else if(strcmp(argv[3], "english") == 0){language = 0;}
+        else{
+            printf("Error detecting the language: %s\nenglish or spanish are only available\n", argv[3]);
+            free(lines);
+            fclose(input);
+            fclose(output);
+            return 1;
+        }
 
         while(fgets(buffer, MAX_SIZE, input)){
             // Redimension of the array dynamically (append each line)
@@ -41,7 +50,9 @@ int main(int argn, char **argv){
             lines = temp;
 
             // Removing stop words from the line
-            char* cleaned_line = remove_stop_words(buffer);
+            char* cleaned_line;
+            if(language){cleaned_line = remove_stop_words_spanish(buffer);}
+            else{cleaned_line = remove_stop_words_english(buffer);}
             if (!cleaned_line){
                 perror("Error while cleaning the line\n");
                 break;
@@ -79,6 +90,6 @@ int main(int argn, char **argv){
 	    printf("CPU/Wall %.3f %% \n", 100.0 * (utime1 - utime0 + stime1 - stime0) / (wtime1 - wtime0));
     	printf("\n");
     } else {
-        printf("Use: %s <input file> <output file>\n", argv[0]);
+        printf("Use: %s <input file> <output file> <english/spanish>\n", argv[0]);
     }
 }

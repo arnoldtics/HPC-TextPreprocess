@@ -51,11 +51,36 @@ const char *SPANISH_STOP_WORDS[] = {
     "yo", "él", "éramos"
 };
 
+// English stop words (sorted and ready for binary search)
+// Provided by deepseek
+const char *ENGLISH_STOP_WORDS[] = {
+    "a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
+    "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being",
+    "below", "between", "both", "but", "by", "can", "can't", "cannot", "could",
+    "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down",
+    "during", "each", "few", "for", "from", "further", "had", "hadn't", "has",
+    "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her",
+    "here", "here's", "hers", "herself", "him", "himself", "his", "how", "how's",
+    "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it",
+    "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my",
+    "myself", "no", "nor", "not", "of", "off", "on", "once", "only", "or", "other",
+    "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan't",
+    "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such",
+    "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then",
+    "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've",
+    "this", "those", "through", "to", "too", "under", "until", "up", "very", "was",
+    "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what",
+    "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's",
+    "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd",
+    "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"
+};
+
 // Total number of of stopwords
 const size_t NUMBER_OF_SPANISH_STOP_WORDS = sizeof(SPANISH_STOP_WORDS) / sizeof(SPANISH_STOP_WORDS[0]);
+const size_t NUMBER_OF_ENGLISH_STOP_WORDS = sizeof(ENGLISH_STOP_WORDS) / sizeof(ENGLISH_STOP_WORDS[0]);
 
 // Function to remove punctuation from tokens
-void remove_punctuation(char *str) {
+void remove_punctuation_spanish(char *str) {
     // All the characters that we want to remove
     static const char punct[] = "$,.;:+-*/=¿?¡!()[]'\"°#&%";
      // The resultant token
@@ -103,8 +128,28 @@ void remove_punctuation(char *str) {
     *dst = '\0';
 }
 
+void remove_punctuation_english(char *str) {
+    // All the characters that we want to remove
+    static const char punct[] = "$,.;:+-*/=¿?¡!()[]\"°#&%";
+     // The resultant token
+    char *dst = str;
+    // Character to parse
+    unsigned char *ptr = (unsigned char *)str;
+    
+    while (*ptr) {
+        // If the character is not in the characters that we want to remove
+        if (!strchr(punct, *ptr)) {
+            // parsing everything to lower case
+            *dst++ = tolower(*ptr++);
+        } else {
+            ptr++;
+        }
+    }
+    *dst = '\0';
+}
+
 // Main funtion: removing stop words
-char* remove_stop_words(const char* line) {
+char* remove_stop_words_spanish(const char* line) {
     // null lines
     if (!line) return NULL;
     
@@ -127,10 +172,50 @@ char* remove_stop_words(const char* line) {
     // Iterate over tokens
     while (token != NULL) {
         // Remove punctuation and putting into lower case
-        remove_punctuation(token);
+        remove_punctuation_spanish(token);
 
         // Check if the word is a stop word
-        if (!is_stop_word(token)) {
+        if (!is_stop_word_spanish(token)) {
+            // Add the lower case token to the line
+            strcat(result, token);
+            strcat(result, " ");
+        }
+        // Get the next token
+        token = strtok_r(NULL, " \t\n\r", &saveptr);
+    }
+
+    free(rest); // free memory of the copy
+    return result;
+}
+
+// Main funtion: removing english stop words
+char* remove_stop_words_english(const char* line) {
+    // null lines
+    if (!line) return NULL;
+    
+    // Array to store the non-stop words
+    char* result = calloc(MAX_SIZE, sizeof(char)); // calloc is the same than malloc but it initialized in 0
+    if (!result) return NULL; // Memory problems
+    
+    // Copy of the line. It returns a pointer to the memory location
+    char* rest = strdup(line);
+    if (!rest) {
+        free(result);
+        return NULL;
+    }
+
+    // Tokenization
+    char* token; // Array of strings/tokens
+    char* saveptr; // Needed pointer to parse all the string
+    token = strtok_r(rest, " \t\n\r", &saveptr);
+    
+    // Iterate over tokens
+    while (token != NULL) {
+        // Remove punctuation and putting into lower case
+        remove_punctuation_english(token);
+
+        // Check if the word is a stop word
+        if (!is_stop_word_english(token)) {
             // Add the lower case token to the line
             strcat(result, token);
             strcat(result, " ");
@@ -151,11 +236,22 @@ int compare_strings(const void *a, const void *b) {
 }
 
 // Function to check if a word is a stop word using binary search
-int is_stop_word(const char *word) {
+int is_stop_word_spanish(const char *word) {
     return bsearch(
         &word,
         SPANISH_STOP_WORDS, 
         NUMBER_OF_SPANISH_STOP_WORDS, 
+        sizeof(const char*), 
+        compare_strings  
+    ) != NULL;
+}
+
+// Function to check if a word is a english stop word using binary search
+int is_stop_word_english(const char *word) {
+    return bsearch(
+        &word,
+        ENGLISH_STOP_WORDS, 
+        NUMBER_OF_ENGLISH_STOP_WORDS, 
         sizeof(const char*), 
         compare_strings  
     ) != NULL;
