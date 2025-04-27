@@ -16,8 +16,8 @@ int main(int argn, char **args) {
     MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
     
     if (my_proc == 0) { // Master
-        if (argn < 3) {
-            printf("Use: %s <input file> <output file>\n", args[0]);
+        if (argn < 4) {
+            printf("Use: %s <input file> <output file> <english/spanish>\n", args[0]);
             MPI_Abort(MPI_COMM_WORLD, 1);
             return 1;
         }
@@ -86,6 +86,18 @@ int main(int argn, char **args) {
             MPI_Abort(MPI_COMM_WORLD, 1);
             return 1;
         }
+
+        // Verify spanish or english files
+        int language;
+        if(strcmp(args[3], "spanish") == 0){language = 1;}
+        else if(strcmp(args[3], "english") == 0){language = 0;}
+        else{
+            printf("Error detecting the language: %s\nenglish or spanish are only available\n", args[3]);
+            free(lines);
+            fclose(output);
+            MPI_Abort(MPI_COMM_WORLD, 1);
+            return 1;
+        }
         
         // Sending to the workers
         unsigned long long next_line = 0;
@@ -95,6 +107,7 @@ int main(int argn, char **args) {
         for (int worker = 1; worker < num_procs && next_line < line_count; worker++) {
             MPI_Send(&lines[next_line].index, 1, MPI_UNSIGNED_LONG_LONG, worker, 0, MPI_COMM_WORLD);
             MPI_Send(lines[next_line].original_line, strlen(lines[next_line].original_line)+1, MPI_CHAR, worker, 0, MPI_COMM_WORLD);
+            MPI_Send(&language, 1, MPI_INT, worker, 0, MPI_COMM_WORLD);
             //lines[next_line].processed = -1;
             next_line++;
         }
@@ -122,6 +135,7 @@ int main(int argn, char **args) {
             if (next_line < line_count) {
                 MPI_Send(&lines[next_line].index, 1, MPI_UNSIGNED_LONG_LONG, status.MPI_SOURCE, 0, MPI_COMM_WORLD);
                 MPI_Send(lines[next_line].original_line, strlen(lines[next_line].original_line)+1, MPI_CHAR, status.MPI_SOURCE, 0, MPI_COMM_WORLD);
+                MPI_Send(&language, 1, MPI_INT, status.MPI_SOURCE, 0, MPI_COMM_WORLD);
                 //lines[next_line].processed = -1; // flag in progress
                 next_line++;
             } else {
@@ -146,7 +160,7 @@ int main(int argn, char **args) {
         
     } else { // Workers
         while (1) {
-            // First the worker receives a number
+            // First the worker receives the line number or the flag for ending work
             unsigned long long line_index;
             MPI_Recv(&line_index, 1, MPI_UNSIGNED_LONG_LONG, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             
@@ -155,11 +169,18 @@ int main(int argn, char **args) {
             
             // If not, it is the index of a new line to process
             char original_line[MAX_SIZE];
+            
             // Receiving the line
             MPI_Recv(original_line, MAX_SIZE, MPI_CHAR, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
+            // Receiving the flag for language
+            int language_flag;
+            MPI_Recv(&language_flag, 1, MPI_INT, 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             
             // Main function: removing the stop words
-            char* cleaned_line = remove_stop_words(original_line);
+            char* cleaned_line = NULL;
+            if(language_flag){cleaned_line = remove_stop_words_spanish(original_line);}
+            else{cleaned_line = remove_stop_words_english(original_line);}
 
             if (!cleaned_line) {
                 cleaned_line = strdup("Error at the process\n");
