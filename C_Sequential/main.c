@@ -5,7 +5,7 @@
 #include "Timming.h"
 
 int main(int argn, char **argv){
-    if (argn > 1){
+    if (argn > 2){
     	double utime0, stime0, wtime0, utime1, stime1, wtime1;
 		uswtime(&utime0, &stime0, &wtime0);
 
@@ -17,9 +17,9 @@ int main(int argn, char **argv){
         }
 
         // Creating output file
-        FILE *output = fopen("output.txt", "w");
+        FILE *output = fopen(argv[2], "w");
         if (!output){
-            printf("Error opening the file output.txt\n");
+            printf("Error opening the file %s\n", argv[2]);
             fclose(input);
             return 1;
         }
@@ -79,6 +79,6 @@ int main(int argn, char **argv){
 	    printf("CPU/Wall %.3f %% \n", 100.0 * (utime1 - utime0 + stime1 - stime0) / (wtime1 - wtime0));
     	printf("\n");
     } else {
-        printf("You must write the file name as an argument\n");
+        printf("Use: %s <input file> <output file>\n", argv[0]);
     }
 }
