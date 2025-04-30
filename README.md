@@ -16,7 +16,7 @@ Final project for the High-Performance Computing (Supercomputing) 2025-2 class, 
 Natural Language Processing (NLP) is a field of Computer Science that has significantly grown in recent years and is expected to continue expanding in the near and medium-term future. However, a complete NLP project consists of multiple phases, with one of the most crucial being the first: cleaning the text dataset (corpus).
 
 Corpus cleaning involves several key tasks, including:
-- Tokenization: splitting each instance into individual words.
+- Tokenization: splitting each instance into individual words-tokens.
 - Stop-words removal: eliminating common words from the language being processed.
 - Lemmatization: converting words to their base form.
 
@@ -40,9 +40,15 @@ This represents a significant bottleneck which can be mitigated using High-Perfo
 4. Test the HPC algorithm on a supercomputer architecture 
 
 ## Toolset
-The project will be developed using C with MPI library and GNU Makefile.
+The project was developed in C with MPI library for parallelization, and GNU Makefile. 
+
+To provide a performance benchmark, the same algorithm was also implemented in Python for sequential execution.
 
 ## Usage Instructions & Requirements
+To process a corpus, place its content in a .txt file
+- **Python**. It only works for English corpus. To execute: copy the cleaner.py file (it is in Python_Sequential folder) to the same directory as your input text file. Run cleaner.py with two arguments: the input file name and the output file name
+- **C Sequential**. It works with both (English - Spanish). Copy the C_Sequential folder. Edit the GNUmakefile to match your system's compiler configuration. Use the make command and then run the program with 3 arguments: input file name, output file name, and language (english or spanish). The input/output can be the relative path to the files.
+- **C Parallelized**. It works with both (English - Spanish). Copy the C_Parallelized folder. Edit the GNUmakefile to match your system's compiler configuration, specially the route to the MPI library. Use the make command and then run the program with 3 arguments: input file name, output file name, and language (english or spanish). The input/output can be the relative path to the files. The number of threads can be defined during execution because the programm is totally adapted to the computer architecture.
 
 ## General System Architecture
 
