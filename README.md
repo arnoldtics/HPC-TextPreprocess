@@ -50,9 +50,36 @@ To process a corpus, place its content in a .txt file
 - **C Sequential**. It works with both (English - Spanish). Copy the C_Sequential folder. Edit the GNUmakefile to match your system's compiler configuration. Use the make command and then run the program with 3 arguments: input file name, output file name, and language (english or spanish). The input/output can be the relative path to the files.
 - **C Parallelized**. It works with both (English - Spanish). Copy the C_Parallelized folder. Edit the GNUmakefile to match your system's compiler configuration, specially the route to the MPI library. Use the make command and then run the program with 3 arguments: input file name, output file name, and language (english or spanish). The input/output can be the relative path to the files. The number of threads can be defined during execution because the programm is totally adapted to the computer architecture.
 
-## General System Architecture
+## Algorithm Metodology
+*This section explains how the algorithm works. Details about the parallelization process are convered in the next section.*
 
-## Metodology
+The algorith follows these steps:
+1. It verifies the input/output files, as well as the language.
+2. If validation is successful, the program reads each line from the input file and stores it in an array for processing. 
+    - Each line has a default maximum length of 4096 characters. This limit can be increased by modifying line 12 in common.h. 
+    - A line is represented as a struct containing the text and an index, which helps preserve the original order during parallel execution
+3. Each line undergoes the following processing: 
+    - Every character is checked to determine if it is alphanumeric. 
+        - If it is a letter, it is converted to lowercase. 
+        - In Spanish, additional checks are performed for special characters (accented letters, ñ and ü)
+    - While processing characters, tokens (words) are identified using whitespaces as delimiters
+    - Each token is checked against a list of stop words (using binary search). This list is sourced from DeepSeek.
+    - Tokens that are not stop words are reconstructed into the cleaned version of the line.
+4. Due to desynchronizacion during parallel processing, the lines are sorted back to the original order using their index.
+5. The cleaned and ordered lines are written to the output file.
+
+## Parallelization
+The algorithm uses a master-worker model to achieve parallelism with MPI.
+- The master thread (rank 0) is responsible for:
+    1. Performing all initial validations (input/output files and language).
+    2. Reading all lines from the input file and storing them in an array of custom line structs (each containing the text and its original index).
+    3. Distributing lines dynamically to the worker threads for processing, along with a flag indicating the selected language.
+    4. Applying the barber method for load balancing: whenever a worker finishes its task, the master immediately assigns it a new one.
+    5. Once all lines have been processed, the master gathers the cleaned results, reorders them using the original indices, and writes them to the output file.
+- The worker threads (rank > 0) follow this process:
+    1. Send the cleaned line back to the master.
+    2. Wait for a line and a language flag from the master.
+    3. Apply the cleaning process described in the previous section (character filtering, tokenization, stop-word removal).
 
 ## Testing and Results
 
