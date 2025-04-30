@@ -10,7 +10,7 @@ Implementation of Natural Language preprocessing algorithms using High-Performan
 GNU General Public License v3.0
 
 ## Affiliation
-Final project for the High-Performance Computing (Supercomputing) 2025-2 class, designed and developed at the National Autonomous University of Mexico (UNAM), specifically at its National School of Higher Studies, Morelia Campus (ENES Morelia). This project is part of the Specialization Area of Information Sciences in the Bachelor's Program in Information Technologies for Science.
+Final project for the High-Performance Computing (Supercomputing) 2025-2 class, designed and developed at the National Autonomous University of Mexico (UNAM), specifically at its National School of Higher Studies, Morelia Campus (ENES Morelia). This project is part of the Specialization Area of Information Sciences in the Bachelor's Program in Information Technologies for Science. The tests were performed in the Interdisciplinary Laboratory of Scientific Computing.
 
 ## Introduction
 Natural Language Processing (NLP) is a field of Computer Science that has significantly grown in recent years and is expected to continue expanding in the near and medium-term future. However, a complete NLP project consists of multiple phases, with one of the most crucial being the first: cleaning the text dataset (corpus).
@@ -82,6 +82,29 @@ The algorithm uses a master-worker model to achieve parallelism with MPI.
     3. Apply the cleaning process described in the previous section (character filtering, tokenization, stop-word removal).
 
 ## Testing and Results
+The algorithm was executed 10 times for each thread count on the CE computer of the Interdisciplinary Laboratory of Scientific Computing. The tests were conducted using different versions of the implementation: Python, C Sequential, and C Parallelized.
+
+Plot description:
+- The horizontal axis represents the number of threads used.
+- The vertical axis indicates the execution time (in seconds).
+- Each boxplot displays:
+    - Mean
+    - Median
+    - Interquartile range (IQR)
+- Colors distinguish the implementation type:
+    - Purple for C Parallelized
+    - Green for C Sequential
+    - Blue for Python 
+
+**UNAM Bachelor's degree theses titles:** 406,896 lines
+![tesis](/img/boxplots/tesis.png)
+
+**Catholic Bible:** 31,105 lines
+![bible](/img/boxplots/biblia.png)
+![bible](/img/boxplots/bibliaLog.png)
+
+**Les Miserable Book by Victor Hugo:** 73,586 lines
+![miserables](/img/boxplots/miserables.png)
 
 ## Conclusions
 
