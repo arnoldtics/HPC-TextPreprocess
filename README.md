@@ -107,8 +107,21 @@ Plot description:
 ![miserables](/img/boxplots/miserables.png)
 
 ## Conclusions
+Implementing a parallel algorithm offers several advantages:
+- Significant execution time reduction for future runs.
+- Efficient use of computational resources.
+- Deeper understanding of multithreaded communication and synchronization mechanisms.
+
+In natural language processing tasks, tokenization and cleaning are crucial preprocessing steps. However, they are also resource-intensive. High-performance computing (HPC) proves to be an excellent tool to tackle these challenges, as demonstrated by the results obtained in this project.
+
+This implementation can be reused as an independent library for preprocessing large-scale text corpus, enabling downstream applications such as: deep learning, unsupervised learning, and text compression prior to storage
+
+Two promising directions for future improvements include:
+1. Integrating a lemmatization process into the current parallelized version.
+2. Extending the algorithm to handle multiple files simultaneously, by distributing entire files (rather than individual lines) to workers. This would significantly boost scalability when working with large datasets or big data environments.
 
 ## References
 - IBM. What are stemming and lemmatization: https://www.ibm.com/think/topics/stemming-lemmatization
 - IBM. What is NLP (natural language processing): https://www.ibm.com/think/topics/natural-language-processing
 - The Standford Natural Language Processing Group. Dropping common terms: stop words. https://nlp.stanford.edu/IR-book/html/htmledition/dropping-common-terms-stop-words-1.html
+- Universidad de Granada. Programación Paralela. https://lsi2.ugr.es/jmantas/ppr/ayuda/mpi_ayuda.php
