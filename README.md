@@ -82,7 +82,7 @@ The algorithm uses a master-worker model to achieve parallelism with MPI.
     3. Apply the cleaning process described in the previous section (character filtering, tokenization, stop-word removal).
 
 ## Testing and Results
-The algorithm was executed 10 times for each thread count on the CE computer of the Interdisciplinary Laboratory of Scientific Computing. The tests were conducted using different versions of the implementation: Python, C Sequential, and C Parallelized.
+The algorithm was executed 100 times for each thread count on the CE computer of the Interdisciplinary Laboratory of Scientific Computing. The tests were conducted using different versions of the implementation: Python, C Sequential, and C Parallelized.
 
 Plot description:
 - The horizontal axis represents the number of threads used.
